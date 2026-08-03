@@ -1,0 +1,24 @@
+## Feedback Questions and Answers
+
+1. How many hours did it take you to complete this assessment?
+
+    Answer: Approximately 10-12 hours
+
+2. What online resources did you use?
+
+    Answer: Course lectures, Java Documentation, Google
+
+3. Did you get help from any classmates?
+
+    Answer: No, I didn't require any help
+
+4. Did you ask for help from an instructor?
+
+    Answer: No, I didn't require any help
+
+5. Rate the difficulty of each problem and your confidence in solving similar problems in the future.
+
+    * Difficulty - 7/10
+    * Confidence - 9/10
+    
+    This project was initially challenging because it required combining several concepts we had learned, including file handling, PostgreSQL, JDBC, and object-oriented programming. The most challenging aspect for me was deciding how to organize the application and where user input should be handled. Once I settled on the overall structure, the rest of the project fell into place. After finishing this assignment, I feel much more confident working with Java, particularly with database connections and data persistence.

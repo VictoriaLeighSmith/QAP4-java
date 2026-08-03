@@ -28,10 +28,21 @@ public class Demo {
             System.out.println("4. Display patient information from database.");
             System.out.println("-1 to exit.");
             System.out.println();
-            System.out.print("Enter your selection: ");
 
-            option = scanner.nextInt();
-            scanner.nextLine();
+            Integer menuSelection = null;
+
+            while (menuSelection == null) {
+                System.out.print("Enter your selection: ");
+                String input = scanner.nextLine();
+
+                try {
+                    menuSelection = Integer.parseInt(input);
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid selection. Please select an option 1-4.");
+                }
+            }
+
+            option = menuSelection;
 
             switch (option) {
                 case 1:
@@ -65,9 +76,24 @@ public class Demo {
         int option = 0;
 
         while (option != -1) {
-            System.out.print("Enter patient ID: ");
-            int id = scanner.nextInt();
-            scanner.nextLine();
+            Integer id = null;
+
+            while (id == null) {
+                System.out.print("Enter patient ID: ");
+                String input = scanner.nextLine();
+
+                try {
+                    int parsedID = Integer.parseInt(input);
+
+                    if (patientIDInUse(parsedID)) {
+                        System.out.println("Patient ID already exists. Please enter a different ID.");
+                    } else {
+                        id = parsedID;
+                    }
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid ID. Please enter an integer.");
+                }
+            }
 
             System.out.print("Enter patient first name: ");
             String firstName = scanner.nextLine();
@@ -119,10 +145,20 @@ public class Demo {
 
             // Prompt user with option to exit or continue
             System.out.println();
-            System.out.print("Enter -1 for main menu or any other number to continue: ");
+            Integer continueOption = null;
 
-            option = scanner.nextInt();
-            scanner.nextLine();
+            while (continueOption == null) {
+                System.out.print("Enter -1 for main menu or any other number to continue: ");
+                String input = scanner.nextLine();
+
+                try {
+                    continueOption = Integer.parseInt(input);
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid input. Please enter a number.");
+                }
+            }
+
+            option = continueOption;
         }
     }
 
@@ -160,16 +196,40 @@ public class Demo {
         int option = 0;
 
         while (option != -1) {
-            System.out.print("Enter drug ID: ");
-            int id = scanner.nextInt();
-            scanner.nextLine();
+            Integer id = null;
+
+            while (id == null) {
+                System.out.print("Enter drug ID: ");
+                String input = scanner.nextLine();
+
+                try {
+                    id = Integer.parseInt(input);
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid ID. Please enter an integer.");
+                }
+            }
 
             System.out.print("Enter drug name: ");
             String drugName = scanner.nextLine();
 
-            System.out.print("Enter drug cost: ");
-            double drugCost = scanner.nextDouble();
-            scanner.nextLine();
+            Double drugCost = null;
+
+            while (drugCost == null) {
+                System.out.print("Enter drug cost: ");
+                String input = scanner.nextLine();
+
+                try {
+                    double parsedCost = Double.parseDouble(input);
+
+                    if (parsedCost < 0) {
+                        System.out.println("Cost can't be negative. Please try again.");
+                    } else {
+                        drugCost = parsedCost;
+                    }
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid cost. Please enter a valid number.");
+                }
+            }
 
             System.out.print("Enter drug dosage: ");
             String dosage = scanner.nextLine();
@@ -190,9 +250,20 @@ public class Demo {
             }
 
             // Prompt user with option to exit or continue
-            System.out.print("Enter -1 for main menu or any other number to continue: ");
-            option = scanner.nextInt();
-            scanner.nextLine();
+            Integer continueOption = null;
+
+            while (continueOption == null) {
+                System.out.print("Enter -1 for main menu or any other number to continue: ");
+                String input = scanner.nextLine();
+
+                try {
+                    continueOption = Integer.parseInt(input);
+                } catch (NumberFormatException error) {
+                    System.out.println("Invalid input. Please enter a number.");
+                }
+            }
+
+            option = continueOption;
         }
     }
 
@@ -209,6 +280,28 @@ public class Demo {
             fileInputStream.close();
         } catch (IOException error) {
             error.printStackTrace();
+        }
+    }
+
+    // This is a helper method to check if the ID already exists in the database
+    public static boolean patientIDInUse(int id) {
+        String query = "SELECT id FROM patients WHERE id = ?";
+
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            statement.setInt(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
+            boolean inUse = resultSet.next();
+
+            connection.close();
+            return inUse;
+        } catch (SQLException error) {
+            System.out.println("Unable to retrieve the patient ID.");
+
+            return false;
         }
     }
 }
