@@ -12,24 +12,67 @@ import java.io.*;
 public class Demo {
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int option = 0;
+        String line = "-".repeat(45);
 
+        // Menu
+        while (option != -1) {
+            System.out.println();
+            System.out.println(line);
+            System.out.println("            PATIENT AND DRUG MENU");
+            System.out.println(line);
+            System.out.println("1. Save new drug information to text file.");
+            System.out.println("2. Display drug information from text file.");
+            System.out.println("3. Save patient information to database.");
+            System.out.println("4. Display patient information from database.");
+            System.out.println("-1 to exit.");
+            System.out.println();
+            System.out.print("Enter your selection: ");
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option) {
+                case 1:
+                    saveDrug(scanner);
+                    break;
+                case 2:
+                    System.out.println();
+                    displayDrugs();
+                    break;
+                case 3:
+                    savePatient(scanner);
+                    break;
+                case 4:
+                    System.out.println();
+                    displayPatients();
+                    break;
+                case -1:
+                    System.out.println("Exiting program ...");
+                    break;
+                default:
+                    System.out.println("Invalid selection. Please choose an option 1-4.");
+                    break;
+            }
+        }
+
+        scanner.close();
     }
 
     // Write Patient object(s) to the database
-    public static void SavePatient() {
-        Scanner scanner = new Scanner(System.in);
-        ArrayList<Patient> patientList = new ArrayList<>();
+    public static void savePatient(Scanner scanner) {
         int option = 0;
 
         while (option != -1) {
-            System.out.println("Enter patient ID: ");
+            System.out.print("Enter patient ID: ");
             int id = scanner.nextInt();
             scanner.nextLine();
 
-            System.out.println("Enter patient first name: ");
+            System.out.print("Enter patient first name: ");
             String firstName = scanner.nextLine();
 
-            System.out.println("Enter patient last name: ");
+            System.out.print("Enter patient last name: ");
             String lastName = scanner.nextLine();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -38,10 +81,9 @@ public class Demo {
             // While patientDOB is null, keep prompting the user for input until we get a
             // properly formatted date
             while (patientDOB == null) {
-                System.out.println("Enter patient date of birth (YYYY-MM-DD): ");
+                System.out.print("Enter patient date of birth (YYYY-MM-DD): ");
                 String dob = scanner.nextLine();
 
-                // THINK ABOUT ADDING CUSTOM EXCEPTION
                 try {
                     patientDOB = LocalDate.parse(dob, formatter);
                 } catch (DateTimeParseException error) {
@@ -49,42 +91,42 @@ public class Demo {
                 }
             }
 
-            // Add new patient to the patient array
-            patientList.add(new Patient(id, firstName, lastName, patientDOB));
+            // Create new patient object
+            Patient patient = new Patient(id, firstName, lastName, patientDOB);
 
-            // Prompt user with option to exit or continue
-            System.out.println("Enter -1 to exit or any other number key to continue: ");
-            option = scanner.nextInt();
-            scanner.nextLine();
-        }
+            // Create query to insert the patient data provided
+            String query = "INSERT INTO patients (id, first_name, last_name, dob)" + " VALUES (?, ?, ?, ?)";
 
-        // Create query to insert the patient data provided
-        String query = "INSERT INTO patients (id, first_name, last_name, dob)" + " VALUES (?, ?, ?, ?)";
-
-        for (int i = 0; i < patientList.size(); i++) {
             try {
                 Connection connection = DatabaseConnection.getConnection();
                 PreparedStatement statement = connection.prepareStatement(query);
 
-                statement.setInt(1, patientList.get(i).getPatientID());
-                statement.setString(2, patientList.get(i).getPatientFirstName());
-                statement.setString(3, patientList.get(i).getPatientLastName());
-                statement.setDate(4, java.sql.Date.valueOf(patientList.get(i).getPatientDOB()));
+                statement.setInt(1, patient.getPatientID());
+                statement.setString(2, patient.getPatientFirstName());
+                statement.setString(3, patient.getPatientLastName());
+                statement.setDate(4, java.sql.Date.valueOf(patient.getPatientDOB()));
 
-                int updateRow = statement.executeUpdate();
-                System.out.println(updateRow + " rows updated.");
+                statement.executeUpdate();
+
+                System.out.println();
+                System.out.println("Successfully added patient to the database!");
 
                 connection.close();
 
             } catch (SQLException error) {
-                error.printStackTrace();
+                System.out.println("The patient could not be saved. Please try again.");
             }
-        }
 
-        scanner.close();
+            // Prompt user with option to exit or continue
+            System.out.println();
+            System.out.print("Enter -1 for main menu or any other number to continue: ");
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+        }
     }
 
-    public static void DisplayPatients() {
+    public static void displayPatients() {
         ArrayList<Patient> patientList = new ArrayList<>();
         String query = "SELECT * FROM patients";
 
@@ -114,23 +156,22 @@ public class Demo {
         }
     }
 
-    public static void SaveDrug() {
-        Scanner scanner = new Scanner(System.in);
+    public static void saveDrug(Scanner scanner) {
         int option = 0;
 
         while (option != -1) {
-            System.out.println("Enter drug ID: ");
+            System.out.print("Enter drug ID: ");
             int id = scanner.nextInt();
             scanner.nextLine();
 
-            System.out.println("Enter drug name: ");
+            System.out.print("Enter drug name: ");
             String drugName = scanner.nextLine();
 
-            System.out.println("Enter drug cost: ");
+            System.out.print("Enter drug cost: ");
             double drugCost = scanner.nextDouble();
             scanner.nextLine();
 
-            System.out.println("Enter drug dosage: ");
+            System.out.print("Enter drug dosage: ");
             String dosage = scanner.nextLine();
 
             try {
@@ -142,20 +183,20 @@ public class Demo {
                 fileWriter.write("\n");
 
                 fileWriter.close();
+                System.out.println();
+                System.out.println("Successfully added new drug to the file!");
             } catch (IOException error) {
                 error.printStackTrace();
             }
 
             // Prompt user with option to exit or continue
-            System.out.println("Enter -1 to exit or any other number key to continue: ");
+            System.out.print("Enter -1 for main menu or any other number to continue: ");
             option = scanner.nextInt();
             scanner.nextLine();
         }
-
-        scanner.close();
     }
 
-    public static void DisplayDrugs() {
+    public static void displayDrugs() {
         try {
             FileInputStream fileInputStream = new FileInputStream("Drugs.txt");
             int i;
@@ -164,6 +205,7 @@ public class Demo {
                 System.out.print((char) i);
             }
 
+            System.out.println();
             fileInputStream.close();
         } catch (IOException error) {
             error.printStackTrace();
